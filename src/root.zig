@@ -26,6 +26,12 @@ const Paddle = struct {
     dx: f32,
 };
 
+const State = struct {
+    game_over: bool,
+    ball: Ball,
+    paddle: Paddle,
+};
+
 fn render_paddle(paddle: Paddle) void {
     const rect = rl.Rectangle{ .width = paddle_width, .height = paddle_height, .x = paddle.x, .y = height - paddle_height };
     rl.drawRectangleRec(rect, paddle_color);
@@ -82,19 +88,22 @@ pub fn run() !void {
     rl.initWindow(width, height, "Break Out");
     defer rl.closeWindow();
 
-    var paddle = Paddle{ .x = width / 2 - paddle_width / 2, .dx = 1.0 };
-    var ball = Ball{ .x = width / 2, .y = height / 2, .dx = 1, .dy = 1 };
+    var state = State{
+        .ball = Ball{ .x = width / 2, .y = height / 2, .dx = 1, .dy = 1 },
+        .paddle = Paddle{ .x = width / 2 - paddle_width / 2, .dx = 1.0 },
+        .game_over = false,
+    };
 
     rl.setTargetFPS(target_fps);
     while (!rl.windowShouldClose()) {
         rl.beginDrawing();
         defer rl.endDrawing();
 
-        render_paddle(paddle);
-        update_paddle(&paddle);
+        render_paddle(state.paddle);
+        update_paddle(&state.paddle);
 
-        render_ball(ball);
-        update_ball(&ball);
+        render_ball(state.ball);
+        update_ball(&state.ball);
 
         rl.clearBackground(rl.Color.black);
     }
