@@ -12,7 +12,7 @@ const paddle_speed = 400;
 
 const ball_radius = 20;
 const ball_color = rl.Color.red;
-const ball_speed = 400;
+const ball_speed = 200;
 
 const Ball = struct {
     x: f32,
@@ -23,6 +23,7 @@ const Ball = struct {
 
 const Paddle = struct {
     x: f32,
+    y: f32,
     dx: f32,
 };
 
@@ -33,7 +34,7 @@ const State = struct {
 };
 
 fn render_paddle(paddle: Paddle) void {
-    const rect = rl.Rectangle{ .width = paddle_width, .height = paddle_height, .x = paddle.x, .y = height - paddle_height };
+    const rect = rl.Rectangle{ .width = paddle_width, .height = paddle_height, .x = paddle.x, .y = paddle.y };
     rl.drawRectangleRec(rect, paddle_color);
 }
 
@@ -84,13 +85,27 @@ fn update_ball(ball: *Ball) void {
     }
 }
 
+fn check_ball_collision(state: *State) void {
+    const ball = state.ball;
+    const paddle = state.paddle;
+
+    if (rl.checkCollisionCircleRec(rl.Vector2{ .x = ball.x, .y = ball.y }, ball_radius, rl.Rectangle{ .x = paddle.x, .y = paddle.y, .width = paddle_width, .height = paddle_height })) {
+        state.*.ball.y = height - ball_radius - paddle_height;
+        state.*.ball.dy *= -1;
+    }
+
+    if (ball.y == height - ball_radius) {
+        state.game_over = true;
+    }
+}
+
 pub fn run() !void {
     rl.initWindow(width, height, "Break Out");
     defer rl.closeWindow();
 
     var state = State{
         .ball = Ball{ .x = width / 2, .y = height / 2, .dx = 1, .dy = 1 },
-        .paddle = Paddle{ .x = width / 2 - paddle_width / 2, .dx = 1.0 },
+        .paddle = Paddle{ .x = width / 2 - paddle_width / 2, .y = height - paddle_height, .dx = 1.0 },
         .game_over = false,
     };
 
@@ -99,11 +114,18 @@ pub fn run() !void {
         rl.beginDrawing();
         defer rl.endDrawing();
 
+        if (state.game_over) {
+            rl.clearBackground(rl.Color.sky_blue);
+            continue;
+        }
+
         render_paddle(state.paddle);
         update_paddle(&state.paddle);
 
         render_ball(state.ball);
         update_ball(&state.ball);
+
+        check_ball_collision(&state);
 
         rl.clearBackground(rl.Color.black);
     }
