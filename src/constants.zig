@@ -12,7 +12,7 @@ pub const brick_height = 10;
 pub const brick_gap = 10;
 
 pub const paddle_width = 100;
-pub const paddle_height = 15;
+pub const paddle_height = 10;
 pub const paddle_color = rl.Color.sky_blue;
 pub const paddle_speed = 400;
 

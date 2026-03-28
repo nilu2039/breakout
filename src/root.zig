@@ -1,5 +1,6 @@
 const std = @import("std");
 const rl = @import("raylib");
+const rg = @import("raygui");
 const constants = @import("constants.zig");
 const paddle = @import("paddle.zig");
 const ball = @import("ball.zig");
@@ -23,7 +24,29 @@ pub const State = struct {
     pub fn deinit(self: *State) void {
         self.bricks.deinit();
     }
+
+    pub fn reset_state(self: *State) !void {
+        self.game_over = false;
+        self.ball = ball.Ball.init();
+        self.paddle = paddle.Paddle.init();
+        try brick.fill_bricks(self);
+    }
 };
+
+fn game_over(state: *State) !void {
+    const text = "Game Over";
+    const font_size = 30;
+    const text_width: f32 = @floatFromInt(rl.measureText(text, font_size));
+    const gap: f32 = 40.0;
+
+    rl.clearBackground(rl.Color.black);
+    rl.drawText(text, @intFromFloat(constants.width / 2 - text_width / 2), @intFromFloat(constants.height / 2 - font_size / 2 - gap), font_size, rl.Color.red);
+
+    const pressed = rg.button(rl.Rectangle{ .x = constants.width / 2 - 100 / 2, .y = constants.height / 2 - 50 / 2 + gap, .width = 100, .height = 50 }, "Retry");
+    if (pressed) {
+        try state.reset_state();
+    }
+}
 
 pub fn run() !void {
     rl.initWindow(constants.width, constants.height, "Break Out");
@@ -36,45 +59,7 @@ pub fn run() !void {
     var state = State.init(allocator);
     defer state.deinit();
 
-    for (0..constants.brick_num_row) |y| {
-        for (0..constants.brick_num_col) |x| {
-            var color: rl.Color = undefined;
-            switch (y) {
-                0, 1 => {
-                    color = rl.Color.red;
-                },
-                2, 3 => {
-                    color = rl.Color.brown;
-                },
-                4, 5 => {
-                    color = rl.Color.green;
-                },
-                6, 7 => {
-                    color = rl.Color.yellow;
-                },
-                else => {
-                    color = rl.Color.black;
-                },
-            }
-
-            var _x: f32 = undefined;
-            var _y: f32 = undefined;
-
-            _x = @floatFromInt(x * constants.brick_width);
-            _y = @floatFromInt(y * constants.brick_height);
-
-            if (x != 0) {
-                _x = @floatFromInt(x * constants.brick_width + constants.brick_gap * x);
-            }
-
-            if (y != 0) {
-                _y = @floatFromInt(y * constants.brick_height + constants.brick_gap * y);
-            }
-
-            const _brick = brick.Brick{ .x = _x, .y = _y, .color = color };
-            try brick.append_brick(&state, _brick);
-        }
-    }
+    try brick.fill_bricks(&state);
 
     rl.setTargetFPS(constants.target_fps);
     while (!rl.windowShouldClose()) {
@@ -82,7 +67,7 @@ pub fn run() !void {
         defer rl.endDrawing();
 
         if (state.game_over) {
-            rl.clearBackground(rl.Color.sky_blue);
+            try game_over(&state);
             continue;
         }
 
