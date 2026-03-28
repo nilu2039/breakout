@@ -1,131 +1,95 @@
 const std = @import("std");
 const rl = @import("raylib");
+const constants = @import("constants.zig");
+const paddle = @import("paddle.zig");
+const ball = @import("ball.zig");
+const brick = @import("brick.zig");
 
-const target_fps = 60;
-const width = 1280;
-const height = 720;
-
-const paddle_width = 150;
-const paddle_height = 20;
-const paddle_color = rl.Color.sky_blue;
-const paddle_speed = 400;
-
-const ball_radius = 20;
-const ball_color = rl.Color.red;
-const ball_speed = 200;
-
-const Ball = struct {
-    x: f32,
-    y: f32,
-    dx: f32,
-    dy: f32,
-};
-
-const Paddle = struct {
-    x: f32,
-    y: f32,
-    dx: f32,
-};
-
-const State = struct {
+pub const State = struct {
     game_over: bool,
-    ball: Ball,
-    paddle: Paddle,
+    ball: ball.Ball,
+    paddle: paddle.Paddle,
+    bricks: std.ArrayList(brick.Brick),
+    brick_allocator: std.mem.Allocator,
+
+    pub fn init(allocator: std.mem.Allocator) !State {
+        return State{
+            .game_over = false,
+            .ball = ball.Ball.init(),
+            .paddle = paddle.Paddle.init(),
+            .bricks = try std.ArrayList(brick.Brick).initCapacity(allocator, 20),
+            .brick_allocator = allocator,
+        };
+    }
+
+    pub fn deinit(self: *State) void {
+        self.bricks.deinit(self.brick_allocator);
+    }
 };
-
-fn render_paddle(paddle: Paddle) void {
-    const rect = rl.Rectangle{ .width = paddle_width, .height = paddle_height, .x = paddle.x, .y = paddle.y };
-    rl.drawRectangleRec(rect, paddle_color);
-}
-
-fn update_paddle(paddle: *Paddle) void {
-    const delta = rl.getFrameTime();
-
-    paddle.dx = 0;
-
-    if (rl.isKeyDown(rl.KeyboardKey.left)) {
-        paddle.dx = -1;
-    }
-
-    if (rl.isKeyDown(rl.KeyboardKey.right)) {
-        paddle.dx = 1;
-    }
-
-    paddle.x += paddle.dx * paddle_speed * delta;
-    paddle.x = std.math.clamp(paddle.x, 0, width - paddle_width);
-}
-
-fn render_ball(ball: Ball) void {
-    const center = rl.Vector2{ .x = ball.x, .y = ball.y };
-    rl.drawCircleV(center, ball_radius, ball_color);
-}
-
-fn update_ball(ball: *Ball) void {
-    const delta = rl.getFrameTime();
-
-    ball.x += ball.dx * ball_speed * delta;
-    ball.y += ball.dy * ball_speed * delta;
-
-    // Left / Right walls
-    if (ball.x < ball_radius) {
-        ball.x = ball_radius;
-        ball.dx *= -1;
-    } else if (ball.x > width - ball_radius) {
-        ball.x = width - ball_radius;
-        ball.dx *= -1;
-    }
-
-    // Top / Bottom walls
-    if (ball.y < ball_radius) {
-        ball.y = ball_radius;
-        ball.dy *= -1;
-    } else if (ball.y > height - ball_radius) {
-        ball.y = height - ball_radius;
-        ball.dy *= -1;
-    }
-}
-
-fn check_ball_collision(state: *State) void {
-    const ball = state.ball;
-    const paddle = state.paddle;
-
-    if (rl.checkCollisionCircleRec(rl.Vector2{ .x = ball.x, .y = ball.y }, ball_radius, rl.Rectangle{ .x = paddle.x, .y = paddle.y, .width = paddle_width, .height = paddle_height })) {
-        state.*.ball.y = height - ball_radius - paddle_height;
-        state.*.ball.dy *= -1;
-    }
-
-    if (ball.y == height - ball_radius) {
-        state.game_over = true;
-    }
-}
 
 pub fn run() !void {
-    rl.initWindow(width, height, "Break Out");
+    rl.initWindow(constants.width, constants.height, "Break Out");
     defer rl.closeWindow();
 
-    var state = State{
-        .ball = Ball{ .x = width / 2, .y = height / 2, .dx = 1, .dy = 1 },
-        .paddle = Paddle{ .x = width / 2 - paddle_width / 2, .y = height - paddle_height, .dx = 1.0 },
-        .game_over = false,
-    };
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    const allocator = gpa.allocator();
+    defer _ = gpa.deinit();
 
-    rl.setTargetFPS(target_fps);
+    var state = try State.init(allocator);
+    defer state.deinit();
+
+    for (0..constants.brick_num_row) |y| {
+        for (0..constants.brick_num_col) |x| {
+            var color: rl.Color = undefined;
+            switch (y) {
+                0, 1 => {
+                    color = rl.Color.red;
+                },
+                2, 3 => {
+                    color = rl.Color.brown;
+                },
+                4, 5 => {
+                    color = rl.Color.green;
+                },
+                6, 7 => {
+                    color = rl.Color.yellow;
+                },
+                else => {
+                    color = rl.Color.black;
+                },
+            }
+            const _brick = brick.Brick{ .x = @floatFromInt(x * constants.brick_width), .y = @floatFromInt(y * constants.brick_height), .color = color };
+            try brick.append_brick(&state, _brick);
+        }
+    }
+
+    rl.setTargetFPS(constants.target_fps);
     while (!rl.windowShouldClose()) {
         rl.beginDrawing();
         defer rl.endDrawing();
 
         if (state.game_over) {
-            rl.clearBackground(rl.Color.sky_blue);
-            continue;
+            // rl.clearBackground(rl.Color.sky_blue);
+            // continue;
         }
 
-        render_paddle(state.paddle);
-        update_paddle(&state.paddle);
+        brick.render_bricks(&state);
 
-        render_ball(state.ball);
-        update_ball(&state.ball);
+        for (0..constants.brick_num_col) |x| {
+            if (x != 0) {
+                const fx = @as(f32, @floatFromInt(x)) * constants.brick_width;
+                const px = @as(i32, @intFromFloat(fx));
 
-        check_ball_collision(&state);
+                rl.drawLine(px, 0, px, constants.height, rl.Color.black);
+            }
+        }
+
+        paddle.render_paddle(state.paddle);
+        paddle.update_paddle(&state.paddle);
+
+        ball.render_ball(state.ball);
+        ball.update_ball(&state.ball);
+        ball.check_ball_collision(&state);
 
         rl.clearBackground(rl.Color.black);
     }
