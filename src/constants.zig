@@ -2,13 +2,14 @@ const rl = @import("raylib");
 
 pub const target_fps = 60;
 
-pub const width = brick_num_col * brick_width;
+pub const width = brick_num_col * brick_width + (brick_num_col - 1) * brick_gap;
 pub const height = brick_num_row * brick_height + 600;
 
 pub const brick_num_col = 14;
 pub const brick_num_row = 8;
 pub const brick_width = 60;
 pub const brick_height = 10;
+pub const brick_gap = 10;
 
 pub const paddle_width = 100;
 pub const paddle_height = 15;

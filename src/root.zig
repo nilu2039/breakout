@@ -58,7 +58,22 @@ pub fn run() !void {
                     color = rl.Color.black;
                 },
             }
-            const _brick = brick.Brick{ .x = @floatFromInt(x * constants.brick_width), .y = @floatFromInt(y * constants.brick_height), .color = color };
+
+            var _x: f32 = undefined;
+            var _y: f32 = undefined;
+
+            _x = @floatFromInt(x * constants.brick_width);
+            _y = @floatFromInt(y * constants.brick_height);
+
+            if (x != 0) {
+                _x = @floatFromInt(x * constants.brick_width + constants.brick_gap * x);
+            }
+
+            if (y != 0) {
+                _y = @floatFromInt(y * constants.brick_height + constants.brick_gap * y);
+            }
+
+            const _brick = brick.Brick{ .x = _x, .y = _y, .color = color };
             try brick.append_brick(&state, _brick);
         }
     }
@@ -75,14 +90,14 @@ pub fn run() !void {
 
         brick.render_bricks(&state);
 
-        for (0..constants.brick_num_col) |x| {
-            if (x != 0) {
-                const fx = @as(f32, @floatFromInt(x)) * constants.brick_width;
-                const px = @as(i32, @intFromFloat(fx));
-
-                rl.drawLine(px, 0, px, constants.height, rl.Color.black);
-            }
-        }
+        // for (0..constants.brick_num_col) |x| {
+        //     if (x != 0) {
+        //         const fx = @as(f32, @floatFromInt(x)) * constants.brick_width;
+        //         const px = @as(i32, @intFromFloat(fx));
+        //
+        //         rl.drawLine(px, 0, px, constants.height, rl.Color.black);
+        //     }
+        // }
 
         paddle.render_paddle(state.paddle);
         paddle.update_paddle(&state.paddle);
