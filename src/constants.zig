@@ -18,4 +18,4 @@ pub const paddle_speed = 400;
 
 pub const ball_radius = 15;
 pub const ball_color = rl.Color.red;
-pub const ball_speed = 200;
+pub const ball_speed = 300;
