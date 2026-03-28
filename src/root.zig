@@ -9,21 +9,19 @@ pub const State = struct {
     game_over: bool,
     ball: ball.Ball,
     paddle: paddle.Paddle,
-    bricks: std.ArrayList(brick.Brick),
-    brick_allocator: std.mem.Allocator,
+    bricks: std.AutoHashMap(brick.BrickKey, brick.Brick),
 
-    pub fn init(allocator: std.mem.Allocator) !State {
+    pub fn init(allocator: std.mem.Allocator) State {
         return State{
             .game_over = false,
             .ball = ball.Ball.init(),
             .paddle = paddle.Paddle.init(),
-            .bricks = try std.ArrayList(brick.Brick).initCapacity(allocator, 20),
-            .brick_allocator = allocator,
+            .bricks = std.AutoHashMap(brick.BrickKey, brick.Brick).init(allocator),
         };
     }
 
     pub fn deinit(self: *State) void {
-        self.bricks.deinit(self.brick_allocator);
+        self.bricks.deinit();
     }
 };
 
@@ -35,7 +33,7 @@ pub fn run() !void {
     const allocator = gpa.allocator();
     defer _ = gpa.deinit();
 
-    var state = try State.init(allocator);
+    var state = State.init(allocator);
     defer state.deinit();
 
     for (0..constants.brick_num_row) |y| {
@@ -84,20 +82,11 @@ pub fn run() !void {
         defer rl.endDrawing();
 
         if (state.game_over) {
-            // rl.clearBackground(rl.Color.sky_blue);
-            // continue;
+            rl.clearBackground(rl.Color.sky_blue);
+            continue;
         }
 
         brick.render_bricks(&state);
-
-        // for (0..constants.brick_num_col) |x| {
-        //     if (x != 0) {
-        //         const fx = @as(f32, @floatFromInt(x)) * constants.brick_width;
-        //         const px = @as(i32, @intFromFloat(fx));
-        //
-        //         rl.drawLine(px, 0, px, constants.height, rl.Color.black);
-        //     }
-        // }
 
         paddle.render_paddle(state.paddle);
         paddle.update_paddle(&state.paddle);

@@ -2,6 +2,11 @@ const rl = @import("raylib");
 const constants = @import("constants.zig");
 const root = @import("root.zig");
 
+pub const BrickKey = struct {
+    x: i32,
+    y: i32,
+};
+
 pub const Brick = struct {
     x: f32,
     y: f32,
@@ -13,12 +18,15 @@ pub const Brick = struct {
 };
 
 pub fn append_brick(state: *root.State, brick: Brick) !void {
-    try state.bricks.append(state.brick_allocator, brick);
+    try state.bricks.put(BrickKey{ .x = @intFromFloat(brick.x), .y = @intFromFloat(brick.y) }, brick);
 }
 
 pub fn render_bricks(state: *root.State) void {
-    for (state.bricks.items) |brick| {
-        const rect = rl.Rectangle{ .x = brick.x, .y = brick.y, .width = constants.brick_width, .height = constants.brick_height };
-        rl.drawRectangleRec(rect, brick.color);
+    var it = state.bricks.iterator();
+
+    while (it.next()) |brick| {
+        const brick_val = brick.value_ptr;
+        const rect = rl.Rectangle{ .x = brick_val.x, .y = brick_val.y, .width = constants.brick_width, .height = constants.brick_height };
+        rl.drawRectangleRec(rect, brick_val.color);
     }
 }
