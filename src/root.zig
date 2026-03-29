@@ -11,6 +11,7 @@ pub const State = struct {
     ball: ball.Ball,
     paddle: paddle.Paddle,
     bricks: std.AutoHashMap(brick.BrickKey, brick.Brick),
+    pause_game: bool,
 
     pub fn init(allocator: std.mem.Allocator) State {
         return State{
@@ -18,6 +19,7 @@ pub const State = struct {
             .ball = ball.Ball.init(),
             .paddle = paddle.Paddle.init(),
             .bricks = std.AutoHashMap(brick.BrickKey, brick.Brick).init(allocator),
+            .pause_game = false,
         };
     }
 
@@ -29,6 +31,7 @@ pub const State = struct {
         self.game_over = false;
         self.ball = ball.Ball.init();
         self.paddle = paddle.Paddle.init();
+        self.pause_game = false;
         try brick.fill_bricks(self);
     }
 };
@@ -48,6 +51,14 @@ fn game_over(state: *State) !void {
     }
 }
 
+pub fn pause_game() void {
+    rl.clearBackground(rl.Color.black);
+    const text = "Game paused";
+    const font_size = 20;
+    const text_width: f32 = @floatFromInt(rl.measureText(text, font_size));
+    rl.drawText(text, @intFromFloat(constants.width / 2 - text_width / 2), @intFromFloat(constants.height / 2 - font_size / 2), font_size, rl.Color.red);
+}
+
 pub fn run() !void {
     rl.initWindow(constants.width, constants.height, "Break Out");
     defer rl.closeWindow();
@@ -65,6 +76,15 @@ pub fn run() !void {
     while (!rl.windowShouldClose()) {
         rl.beginDrawing();
         defer rl.endDrawing();
+
+        if (rl.isKeyPressed(rl.KeyboardKey.p)) {
+            state.pause_game = !state.pause_game;
+        }
+
+        if (state.pause_game) {
+            pause_game();
+            continue;
+        }
 
         if (state.game_over) {
             try game_over(&state);
