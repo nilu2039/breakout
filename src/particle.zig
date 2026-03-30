@@ -21,7 +21,7 @@ pub const Particle = struct {
     }
 };
 
-pub fn spawn_particles(state: *game.State, pos: rl.Vector2) !void {
+pub fn spawnParticles(state: *game.State, pos: rl.Vector2) !void {
     const count = constants.brick_shatter_particle_number;
 
     for (0..count) |_| {
@@ -48,7 +48,7 @@ pub fn spawn_particles(state: *game.State, pos: rl.Vector2) !void {
     }
 }
 
-pub fn update_particles(state: *game.State) void {
+pub fn updateParticles(state: *game.State) void {
     for (0..state.particles.items.len) |i| {
         if (i >= state.particles.items.len) return;
 
@@ -69,7 +69,7 @@ pub fn update_particles(state: *game.State) void {
     }
 }
 
-pub fn render_particles(state: *game.State) void {
+pub fn renderParticles(state: *game.State) void {
     for (state.particles.items) |p| {
         const alpha = p.life / p.max_life;
         rl.drawCircleV(p.pos, constants.particle_size, rl.fade(p.color, alpha));

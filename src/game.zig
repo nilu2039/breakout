@@ -33,15 +33,15 @@ pub const State = struct {
         self.particles.deinit(self.allocator);
     }
 
-    pub fn reset_state(self: *State) !void {
+    pub fn resetState(self: *State) !void {
         self.game_over = false;
         self.ball = ball.Ball.init();
         self.paddle = paddle.Paddle.init();
         self.pause_game = false;
-        try brick.fill_bricks(self);
+        try brick.fillBricks(self);
     }
 
-    pub fn display_game_over_screen(self: *State) !void {
+    pub fn displayGameOverScreen(self: *State) !void {
         const text = "Game Over";
         const font_size = 30;
         const text_width: f32 = @floatFromInt(rl.measureText(text, font_size));
@@ -52,11 +52,11 @@ pub const State = struct {
 
         const pressed = rg.button(rl.Rectangle{ .x = constants.width / 2 - 100 / 2, .y = constants.height / 2 - 50 / 2 + gap, .width = 100, .height = 50 }, "Retry");
         if (pressed) {
-            try self.reset_state();
+            try self.resetState();
         }
     }
 
-    pub fn display_pause_game_screen(_: *State) void {
+    pub fn displayPauseGameScreen(_: *State) void {
         rl.clearBackground(rl.Color.black);
         const text = "Game paused";
         const font_size = 20;
@@ -71,7 +71,7 @@ pub const State = struct {
         );
     }
 
-    pub fn handle_key_press(self: *State) void {
+    pub fn handleKeyPress(self: *State) void {
         if (rl.isKeyPressed(rl.KeyboardKey.p)) {
             self.pause_game = !self.pause_game;
         }
@@ -84,7 +84,7 @@ pub fn run(state: *State) !void {
 
     rl.setTargetFPS(constants.target_fps);
 
-    try brick.fill_bricks(state);
+    try brick.fillBricks(state);
 
     while (!rl.windowShouldClose()) {
         rl.beginDrawing();
@@ -92,28 +92,28 @@ pub fn run(state: *State) !void {
 
         rl.clearBackground(rl.Color.black);
 
-        state.handle_key_press();
+        state.handleKeyPress();
 
         if (state.pause_game) {
-            state.display_pause_game_screen();
+            state.displayPauseGameScreen();
             continue;
         }
 
         if (state.game_over) {
-            try state.display_game_over_screen();
+            try state.displayGameOverScreen();
             continue;
         }
 
-        brick.render_bricks(state);
+        brick.renderBricks(state);
 
-        paddle.render_paddle(state);
-        paddle.update_paddle(state);
+        paddle.renderPaddle(state);
+        paddle.updatePaddle(state);
 
-        ball.render_ball(state);
-        ball.update_ball(state);
-        try ball.check_ball_collision(state);
+        ball.renderBall(state);
+        ball.updateBall(state);
+        try ball.checkBallCollision(state);
 
-        particle.render_particles(state);
-        particle.update_particles(state);
+        particle.renderParticles(state);
+        particle.updateParticles(state);
     }
 }

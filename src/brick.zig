@@ -18,7 +18,7 @@ pub const Brick = struct {
     }
 };
 
-pub fn fill_bricks(state: *game.State) !void {
+pub fn fillBricks(state: *game.State) !void {
     for (0..constants.brick_num_row) |y| {
         for (0..constants.brick_num_col) |x| {
             var color: rl.Color = undefined;
@@ -55,15 +55,15 @@ pub fn fill_bricks(state: *game.State) !void {
             }
 
             const _brick = brick.Brick{ .x = _x, .y = _y, .color = color };
-            try brick.append_brick(state, _brick);
+            try brick.appendBrick(state, _brick);
         }
     }
 }
-pub fn append_brick(state: *game.State, _brick: Brick) !void {
+pub fn appendBrick(state: *game.State, _brick: Brick) !void {
     try state.bricks.put(BrickKey{ .x = @intFromFloat(_brick.x), .y = @intFromFloat(_brick.y) }, _brick);
 }
 
-pub fn render_bricks(state: *game.State) void {
+pub fn renderBricks(state: *game.State) void {
     var it = state.bricks.iterator();
 
     while (it.next()) |brick_entry| {

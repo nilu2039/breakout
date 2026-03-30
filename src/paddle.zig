@@ -17,7 +17,7 @@ pub const Paddle = struct {
     }
 };
 
-pub fn render_paddle(state: *game.State) void {
+pub fn renderPaddle(state: *game.State) void {
     const paddle = state.paddle;
     const rect = rl.Rectangle{
         .width = constants.paddle_width,
@@ -28,7 +28,7 @@ pub fn render_paddle(state: *game.State) void {
     rl.drawRectangleRec(rect, constants.paddle_color);
 }
 
-pub fn update_paddle(state: *game.State) void {
+pub fn updatePaddle(state: *game.State) void {
     const paddle = &state.paddle;
 
     const dt = rl.getFrameTime();

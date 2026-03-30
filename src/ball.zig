@@ -16,13 +16,13 @@ pub const Ball = struct {
     }
 };
 
-pub fn render_ball(state: *game.State) void {
+pub fn renderBall(state: *game.State) void {
     const ball = state.ball;
     const center = rl.Vector2{ .x = ball.x, .y = ball.y };
     rl.drawCircleV(center, constants.ball_radius, constants.ball_color);
 }
 
-pub fn update_ball(state: *game.State) void {
+pub fn updateBall(state: *game.State) void {
     const ball = &state.ball;
     const dt = rl.getFrameTime();
 
@@ -48,7 +48,7 @@ pub fn update_ball(state: *game.State) void {
     }
 }
 
-pub fn check_ball_collision(state: *game.State) !void {
+pub fn checkBallCollision(state: *game.State) !void {
     const ball = &state.ball;
     const ball_center = rl.Vector2{ .x = ball.x, .y = ball.y };
 
@@ -84,7 +84,7 @@ pub fn check_ball_collision(state: *game.State) !void {
             }
 
             remove_key = brick.BrickKey{ .x = @intFromFloat(brick_val.x), .y = @intFromFloat(brick_val.y) };
-            try particles.spawn_particles(state, rl.Vector2{ .x = brick_val.x, .y = brick_val.y });
+            try particles.spawnParticles(state, rl.Vector2{ .x = brick_val.x, .y = brick_val.y });
 
             break;
         }
