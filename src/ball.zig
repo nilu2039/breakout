@@ -3,6 +3,7 @@ const std = @import("std");
 const constants = @import("constants.zig");
 const root = @import("root.zig");
 const brick = @import("brick.zig");
+const particles = @import("particle.zig");
 
 pub const Ball = struct {
     x: f32,
@@ -45,7 +46,7 @@ pub fn update_ball(ball: *Ball) void {
     }
 }
 
-pub fn check_ball_collision(state: *root.State) void {
+pub fn check_ball_collision(state: *root.State) !void {
     const ball = &state.ball;
     const ball_center = rl.Vector2{ .x = ball.x, .y = ball.y };
 
@@ -72,6 +73,8 @@ pub fn check_ball_collision(state: *root.State) void {
             }
 
             remove_key = brick.BrickKey{ .x = @intFromFloat(brick_val.x), .y = @intFromFloat(brick_val.y) };
+            try particles.spawn_particles(state, rl.Vector2{ .x = brick_val.x, .y = brick_val.y });
+
             break;
         }
     }

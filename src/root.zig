@@ -5,6 +5,7 @@ const constants = @import("constants.zig");
 const paddle = @import("paddle.zig");
 const ball = @import("ball.zig");
 const brick = @import("brick.zig");
+const particle = @import("particle.zig");
 
 pub const State = struct {
     game_over: bool,
@@ -12,19 +13,24 @@ pub const State = struct {
     paddle: paddle.Paddle,
     bricks: std.AutoHashMap(brick.BrickKey, brick.Brick),
     pause_game: bool,
+    allocator: std.mem.Allocator,
+    particles: std.ArrayList(particle.Particle),
 
-    pub fn init(allocator: std.mem.Allocator) State {
+    pub fn init(allocator: std.mem.Allocator) !State {
         return State{
             .game_over = false,
             .ball = ball.Ball.init(),
             .paddle = paddle.Paddle.init(),
             .bricks = std.AutoHashMap(brick.BrickKey, brick.Brick).init(allocator),
             .pause_game = false,
+            .allocator = allocator,
+            .particles = try std.ArrayList(particle.Particle).initCapacity(allocator, 20),
         };
     }
 
     pub fn deinit(self: *State) void {
         self.bricks.deinit();
+        self.particles.deinit(self.allocator);
     }
 
     pub fn reset_state(self: *State) !void {
@@ -67,7 +73,7 @@ pub fn run() !void {
     const allocator = gpa.allocator();
     defer _ = gpa.deinit();
 
-    var state = State.init(allocator);
+    var state = try State.init(allocator);
     defer state.deinit();
 
     try brick.fill_bricks(&state);
@@ -98,7 +104,10 @@ pub fn run() !void {
 
         ball.render_ball(state.ball);
         ball.update_ball(&state.ball);
-        ball.check_ball_collision(&state);
+        try ball.check_ball_collision(&state);
+
+        particle.render_particles(&state);
+        particle.update_particles(&state);
 
         rl.clearBackground(rl.Color.black);
     }
