@@ -38,6 +38,7 @@ zig build run
 
 * ← / → : Move paddle
 * ESC : Quit
+* p : Pause/Unpause
 
 ---
 
