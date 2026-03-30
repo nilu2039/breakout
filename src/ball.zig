@@ -59,7 +59,16 @@ pub fn check_ball_collision(state: *game.State) !void {
 
     while (bricks_it.next()) |brick_entry| {
         const brick_val = brick_entry.value_ptr;
-        const collision = rl.checkCollisionCircleRec(ball_center, constants.ball_radius, rl.Rectangle{ .x = brick_val.x, .y = brick_val.y, .width = constants.brick_width, .height = constants.brick_height });
+        const collision = rl.checkCollisionCircleRec(
+            ball_center,
+            constants.ball_radius,
+            rl.Rectangle{
+                .x = brick_val.x,
+                .y = brick_val.y,
+                .width = constants.brick_width,
+                .height = constants.brick_height,
+            },
+        );
 
         if (collision) {
             const closest_x = std.math.clamp(ball_center.x, brick_val.x, brick_val.x + constants.brick_width);
@@ -85,7 +94,12 @@ pub fn check_ball_collision(state: *game.State) !void {
         _ = state.bricks.remove(key);
     }
 
-    if (rl.checkCollisionCircleRec(ball_center, constants.ball_radius, rl.Rectangle{ .x = _paddle.x, .y = _paddle.y, .width = constants.paddle_width, .height = constants.paddle_height })) {
+    if (rl.checkCollisionCircleRec(ball_center, constants.ball_radius, rl.Rectangle{
+        .x = _paddle.x,
+        .y = _paddle.y,
+        .width = constants.paddle_width,
+        .height = constants.paddle_height,
+    })) {
         ball.*.y = constants.height - constants.ball_radius - constants.paddle_height;
         ball.*.dy *= -1;
     }

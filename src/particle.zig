@@ -11,7 +11,13 @@ pub const Particle = struct {
     color: rl.Color,
 
     pub fn init() Particle {
-        return Particle{ .pos = rl.Vector2{ .x = 0, .y = 0 }, .vel = rl.Vector2{ .x = 0, .y = 0 }, .life = 1.0, .max_life = 1.0, .color = rl.Color.red };
+        return Particle{
+            .pos = rl.Vector2{ .x = 0, .y = 0 },
+            .vel = rl.Vector2{ .x = 0, .y = 0 },
+            .life = 1.0,
+            .max_life = 1.0,
+            .color = rl.Color.red,
+        };
     }
 };
 

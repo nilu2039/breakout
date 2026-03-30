@@ -9,13 +9,22 @@ pub const Paddle = struct {
     dx: f32,
 
     pub fn init() Paddle {
-        return Paddle{ .x = constants.width / 2 - constants.paddle_width / 2, .y = constants.height - constants.paddle_height, .dx = 1.0 };
+        return Paddle{
+            .x = constants.width / 2 - constants.paddle_width / 2,
+            .y = constants.height - constants.paddle_height,
+            .dx = 1.0,
+        };
     }
 };
 
 pub fn render_paddle(state: *game.State) void {
     const paddle = state.paddle;
-    const rect = rl.Rectangle{ .width = constants.paddle_width, .height = constants.paddle_height, .x = paddle.x, .y = paddle.y };
+    const rect = rl.Rectangle{
+        .width = constants.paddle_width,
+        .height = constants.paddle_height,
+        .x = paddle.x,
+        .y = paddle.y,
+    };
     rl.drawRectangleRec(rect, constants.paddle_color);
 }
 

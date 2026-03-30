@@ -68,7 +68,12 @@ pub fn render_bricks(state: *game.State) void {
 
     while (it.next()) |brick_entry| {
         const brick_val = brick_entry.value_ptr;
-        const rect = rl.Rectangle{ .x = brick_val.x, .y = brick_val.y, .width = constants.brick_width, .height = constants.brick_height };
+        const rect = rl.Rectangle{
+            .x = brick_val.x,
+            .y = brick_val.y,
+            .width = constants.brick_width,
+            .height = constants.brick_height,
+        };
         rl.drawRectangleRec(rect, brick_val.color);
     }
 }

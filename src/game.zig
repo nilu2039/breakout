@@ -60,8 +60,15 @@ pub const State = struct {
         rl.clearBackground(rl.Color.black);
         const text = "Game paused";
         const font_size = 20;
-        const text_width: f32 = @floatFromInt(rl.measureText(text, font_size));
-        rl.drawText(text, @intFromFloat(constants.width / 2 - text_width / 2), @intFromFloat(constants.height / 2 - font_size / 2), font_size, rl.Color.red);
+        const text_width: f32 =
+            @floatFromInt(rl.measureText(text, font_size));
+        rl.drawText(
+            text,
+            @intFromFloat(constants.width / 2 - text_width / 2),
+            @intFromFloat(constants.height / 2 - font_size / 2),
+            font_size,
+            rl.Color.red,
+        );
     }
 
     pub fn handle_key_press(self: *State) void {
