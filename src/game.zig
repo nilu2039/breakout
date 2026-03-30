@@ -63,6 +63,12 @@ pub const State = struct {
         const text_width: f32 = @floatFromInt(rl.measureText(text, font_size));
         rl.drawText(text, @intFromFloat(constants.width / 2 - text_width / 2), @intFromFloat(constants.height / 2 - font_size / 2), font_size, rl.Color.red);
     }
+
+    pub fn handle_key_press(self: *State) void {
+        if (rl.isKeyPressed(rl.KeyboardKey.p)) {
+            self.pause_game = !self.pause_game;
+        }
+    }
 };
 
 pub fn run(state: *State) !void {
@@ -79,9 +85,7 @@ pub fn run(state: *State) !void {
 
         rl.clearBackground(rl.Color.black);
 
-        if (rl.isKeyPressed(rl.KeyboardKey.p)) {
-            state.pause_game = !state.pause_game;
-        }
+        state.handle_key_press();
 
         if (state.pause_game) {
             state.display_pause_game_screen();
