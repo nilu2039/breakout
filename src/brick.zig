@@ -1,6 +1,6 @@
 const rl = @import("raylib");
 const constants = @import("constants.zig");
-const root = @import("root.zig");
+const game = @import("game.zig");
 const brick = @import("brick.zig");
 
 pub const BrickKey = struct {
@@ -18,7 +18,7 @@ pub const Brick = struct {
     }
 };
 
-pub fn fill_bricks(state: *root.State) !void {
+pub fn fill_bricks(state: *game.State) !void {
     for (0..constants.brick_num_row) |y| {
         for (0..constants.brick_num_col) |x| {
             var color: rl.Color = undefined;
@@ -59,11 +59,11 @@ pub fn fill_bricks(state: *root.State) !void {
         }
     }
 }
-pub fn append_brick(state: *root.State, _brick: Brick) !void {
+pub fn append_brick(state: *game.State, _brick: Brick) !void {
     try state.bricks.put(BrickKey{ .x = @intFromFloat(_brick.x), .y = @intFromFloat(_brick.y) }, _brick);
 }
 
-pub fn render_bricks(state: *root.State) void {
+pub fn render_bricks(state: *game.State) void {
     var it = state.bricks.iterator();
 
     while (it.next()) |brick_entry| {
