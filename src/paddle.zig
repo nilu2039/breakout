@@ -1,5 +1,6 @@
 const std = @import("std");
 const rl = @import("raylib");
+const root = @import("root.zig");
 const constants = @import("constants.zig");
 
 pub const Paddle = struct {
@@ -12,12 +13,15 @@ pub const Paddle = struct {
     }
 };
 
-pub fn render_paddle(paddle: Paddle) void {
+pub fn render_paddle(state: *root.State) void {
+    const paddle = state.paddle;
     const rect = rl.Rectangle{ .width = constants.paddle_width, .height = constants.paddle_height, .x = paddle.x, .y = paddle.y };
     rl.drawRectangleRec(rect, constants.paddle_color);
 }
 
-pub fn update_paddle(paddle: *Paddle) void {
+pub fn update_paddle(state: *root.State) void {
+    const paddle = &state.paddle;
+
     const dt = rl.getFrameTime();
 
     paddle.dx = 0;

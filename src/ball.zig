@@ -16,12 +16,14 @@ pub const Ball = struct {
     }
 };
 
-pub fn render_ball(ball: Ball) void {
+pub fn render_ball(state: *root.State) void {
+    const ball = state.ball;
     const center = rl.Vector2{ .x = ball.x, .y = ball.y };
     rl.drawCircleV(center, constants.ball_radius, constants.ball_color);
 }
 
-pub fn update_ball(ball: *Ball) void {
+pub fn update_ball(state: *root.State) void {
+    const ball = &state.ball;
     const dt = rl.getFrameTime();
 
     ball.x += ball.dx * constants.ball_speed * dt;

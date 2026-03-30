@@ -99,11 +99,11 @@ pub fn run() !void {
 
         brick.render_bricks(&state);
 
-        paddle.render_paddle(state.paddle);
-        paddle.update_paddle(&state.paddle);
+        paddle.render_paddle(&state);
+        paddle.update_paddle(&state);
 
-        ball.render_ball(state.ball);
-        ball.update_ball(&state.ball);
+        ball.render_ball(&state);
+        ball.update_ball(&state);
         try ball.check_ball_collision(&state);
 
         particle.render_particles(&state);
