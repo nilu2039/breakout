@@ -1,6 +1,6 @@
-# 🧱 Breakout (1979) — Zig + Raylib
+# 🧱 Breakout (1976) — Zig + Raylib
 
-This is a small Breakout-style game inspired by the original **Breakout (1979)**.
+This is a small Breakout-style game inspired by the original **Breakout (1976)**.
 I built it using Zig and Raylib while learning how game loops, rendering, and collision systems work.
 
 ---
