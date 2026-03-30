@@ -48,9 +48,23 @@ pub const State = struct {
         const gap: f32 = 40.0;
 
         rl.clearBackground(rl.Color.black);
-        rl.drawText(text, @intFromFloat(constants.width / 2 - text_width / 2), @intFromFloat(constants.height / 2 - font_size / 2 - gap), font_size, rl.Color.red);
+        rl.drawText(
+            text,
+            @intFromFloat(constants.width / 2 - text_width / 2),
+            @intFromFloat(constants.height / 2 - font_size / 2 - gap),
+            font_size,
+            rl.Color.red,
+        );
 
-        const pressed = rg.button(rl.Rectangle{ .x = constants.width / 2 - 100 / 2, .y = constants.height / 2 - 50 / 2 + gap, .width = 100, .height = 50 }, "Retry");
+        const pressed = rg.button(
+            rl.Rectangle{
+                .x = constants.width / 2 - 100 / 2,
+                .y = constants.height / 2 - 50 / 2 + gap,
+                .width = 100,
+                .height = 50,
+            },
+            "Retry",
+        );
         if (pressed) {
             try self.resetState();
         }
