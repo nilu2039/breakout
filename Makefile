@@ -1,7 +1,7 @@
 .PHONY: all run web-build web-run
 
 all:
-	zig build
+	zig build --release=safe
 
 run:
 	zig build run
